@@ -18,6 +18,7 @@
 """
 
 import string
+from network import class_to_truth
 
 class FeatureGenerator:
     
@@ -35,6 +36,7 @@ class FeatureGenerator:
             '2after_char': FeatureGenerator.ALL_CHARS,
             'is_vowel': [True, False]
         }
+        self.phones = set()
 
     def features(self):
         """ A Generator that returns the feature-phoneme pairs for a whole
@@ -47,6 +49,10 @@ class FeatureGenerator:
                 f.update(wf)
                 yield (f,p[i])
 
+    def gen_feature_possibilities(self):
+        for _,p in self.features():
+            self.phones.add(p)
+
     def features_vector(self):
         """ 
         takes input as a dictionary of features
@@ -56,6 +62,8 @@ class FeatureGenerator:
         returns a truth vector with one element for each input
             [1 0 0 0 0 1]
         """
+        self.gen_feature_possibilities()
+        phones = list(self.phones)
         numvals = 0
         offsets = {}
         for f in sorted(self.feature_vals):
@@ -67,7 +75,7 @@ class FeatureGenerator:
             for f in self.feature_vals:
                 idx = offsets[f] + self.feature_vals[f].index(s[f])
                 v[idx] = 1
-            yield v, t
+            yield v, class_to_truth(phones.index(t), len(phones))
 
     def __gen_features(self, index, w):
         """ Returns a dictionary of the features for a current index in a 
