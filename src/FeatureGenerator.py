@@ -25,16 +25,16 @@ class FeatureGenerator:
     def __init__(self, datafile):
         self.__datafile = datafile
 
-    def features():
+    def features(self):
         """ A Generator that returns the feature-phoneme pairs for a whole
         phonemedatafile.
         """
         for (w,p) in self.__datafile.readWordSplit():
-            for i in range(0,len(w)-1):
+            for i in range(0,len(w)):
                 f = self.__gen_features(i,w)
                 yield (f,p[i])
 
-    def __gen_features(self, index, characters):
+    def __gen_features(self, index, w):
         """ Returns a dictionary of the features for a current index in a 
         word.
         """
@@ -45,6 +45,8 @@ class FeatureGenerator:
     
         if index==len(w)-1: ret["after_char"]=FeatureGenerator.END_OF_WORD_CHAR
         else: ret["after_char"]=w[index+1]
+
+        ret["current_char"] = w[index]
 
         #TODO: add more features!
 

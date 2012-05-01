@@ -22,31 +22,33 @@
     be finite.
 """
 
+import fileinput
+
 class PhonemeDataFile:
 
     def __init__(self, filename, charsep=' '):
         self._filename = filename
         self._sep = charsep
         
-    def readWord():
+    def readWord(self):
         """ A Generator for reading in the words, returns a tuple of (word, pronunciation)."""
         prev=None
         for line in fileinput.input([self._filename], mode='r'):
             if line in [' ','']: continue
 
-            if prev=None:
+            if prev == None:
                 prev=line
                 continue
             else:
                 yield (prev,line)
                 prev=None
 
-    def readWordSplit():
+    def readWordSplit(self):
         """ A Generator for reading in the words as tuples of lists of characters. """
         for (w,p) in self.readWord():
-            yield (w.split(self._sep), p.split(self._sep))
+            yield (w.split(), p.split())
         
-    def readWordMatched():
+    def readWordMatched(self):
         """ A Generator for reading in the words as a list of tupled pairings of characters. """
         for (w,p) in self.readWordSplit():
             yield zip(w,p)
