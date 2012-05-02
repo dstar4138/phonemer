@@ -1,6 +1,10 @@
+"""
+
+"""
 import math
 import random
 import time
+import pickle
 
 from numpy import concatenate, mat, multiply, ones, power, vectorize, zeros
 from numpy.random import rand
@@ -46,6 +50,19 @@ def pad(x):
     cols = x.shape[1]
     return concatenate((mat(ones((1,cols))), x))
 
+
+def loadNN(filename):
+    """ Returns a NeuralNet that was saved to a file using NeuralNet.save() """
+    try:
+        nn = None
+        with open(filename,'r') as f:
+            data = pickle.load(f)
+            nn = NeuralNet( data["struct"], data["lr"] )
+            nn.weights = data["weights"]
+        return nn
+    except: return None
+                
+
 class NeuralNet(object):
     def __init__(self, structure, learning_rate=0.1):
         self.structure = list(structure)
@@ -90,8 +107,9 @@ class NeuralNet(object):
 
         if return_values:
             return sums, outputs, errors, self.weights
+       
 
-    def train(self, samples, validation, epochs=500, epoch_size=1000):
+    def train(self, samples, validation, epochs=500, epoch_size=1000, debug=False):
         best_rmse = 9000000001
         best_weights = []
         epochs_since_best = 0
@@ -116,15 +134,24 @@ class NeuralNet(object):
             else:
                 epochs_since_best += 1
 
-            if num_epoch % 10 == 0:
-                print('Epoch %d, \tRMSE: %f' % (num_epoch, rmse))
-
+            if debug and num_epoch % 10 == 0:
+                print('Epoch %d, \tRMSE: %f' % (num_epoch, rmse))        
         self.weights = best_weights
 
         print('\n---Final Results:---')
         print('epochs: %d' % (num_epoch - 1))
         self.test(validation)
 
+
+    def save(self, filename):
+        try:
+            data = {"weights":self.weights,
+                    "lr":self.lr,
+                    "struct":self.structure}
+            with open(filename,'w') as f:
+                pickle.dump(data, f)
+            return True
+        except: return False   
 
     def run(self, input, verbose=False):
 

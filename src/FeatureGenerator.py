@@ -36,6 +36,7 @@ class FeatureGenerator:
             '2after_char': FeatureGenerator.ALL_CHARS,
             'is_vowel': [True, False]
         }
+        self._features = []
         self.phones = set()
 
     def features(self):
@@ -43,15 +44,16 @@ class FeatureGenerator:
         phonemedatafile.
         """
         for (w,p) in self.__datafile.readWordSplit():
-            wf = self.__word_features(w)
+#            wf = self.__word_features(w)
             for i in range(0,len(w)):
                 f = self.__gen_features(i,w)
-                f.update(wf)
+#                f.update(wf)
                 yield (f,p[i])
 
     def gen_feature_possibilities(self):
-        for _,p in self.features():
+        for w,p in self.features():
             self.phones.add(p)
+            self._features.append( (w,p) )
 
     def features_vector(self):
         """ 
@@ -70,7 +72,7 @@ class FeatureGenerator:
             offsets[f] = numvals
             numvals += len(self.feature_vals[f])
         
-        for s, t in self.features():
+        for s, t in self._features:
             v = [0] * numvals
             for f in self.feature_vals:
                 idx = offsets[f] + self.feature_vals[f].index(s[f])
