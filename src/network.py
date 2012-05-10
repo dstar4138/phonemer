@@ -56,9 +56,7 @@ def loadNN(filename):
     try:
         nn = None
         with open(filename,'r') as f:
-            data = pickle.load(f)
-            nn = NeuralNet( data["struct"], data["lr"] )
-            nn.weights = data["weights"]
+            nn = pickle.load(f)
         return nn
     except: return None
                 
@@ -145,11 +143,8 @@ class NeuralNet(object):
 
     def save(self, filename):
         try:
-            data = {"weights":self.weights,
-                    "lr":self.lr,
-                    "struct":self.structure}
             with open(filename,'w') as f:
-                pickle.dump(data, f)
+                pickle.dump(self,f)
             return True
         except: return False   
 

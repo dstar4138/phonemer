@@ -36,7 +36,9 @@ def makeNN(filename):
     num_output = len(train[0][1])
     network = NeuralNet((num_input, 20, num_output))
     network.train(train, test, debug=True)
-    network.save("savedweights.nn")
+    if network.save("savedweights.nn"):
+        print "Saved nn successfully"
+    else: print "Error while saving nn"
 
 
 def validateNN( nnfile ):
