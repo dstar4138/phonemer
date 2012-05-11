@@ -36,7 +36,7 @@ class FeatureGenerator:
             'after_char': FeatureGenerator.ALL_CHARS,
             'current_char': FeatureGenerator.ALPHABET,
             '2after_char': FeatureGenerator.ALL_CHARS,
-            'is_vowel': [True, False]
+            'soundex':[0,1,2,3,4,5,6,7,8,9]
         }
         self._features = []
         self.phones = set()
@@ -46,10 +46,8 @@ class FeatureGenerator:
         phonemedatafile.
         """
         for (w,p) in self.__datafile.readWordSplit():
-#            wf = self.__word_features(w)
             for i in range(0,len(w)):
                 f = self.__gen_features(i,w)
-#                f.update(wf)
                 yield (f,p[i])
 
     def gen_feature_possibilities(self):
@@ -90,9 +88,6 @@ class FeatureGenerator:
         else:
             return features_vector, None
 
-
-
-
     def __gen_features(self, index, w):
         """ Returns a dictionary of the features for a current index in a 
         word.
@@ -107,44 +102,20 @@ class FeatureGenerator:
 
         ret["current_char"] = w[index]
 
-        ret["is_vowel"] = w[index] in "aeiou"
-
         if index>=len(w)-2: ret["2after_char"]=FeatureGenerator.END_OF_WORD_CHAR
         else: ret["2after_char"]=w[index+2]
 
+        ret["soundex"] = self.__soundex_char( w[index] )
+
         return ret
 
-
-    def __word_features( self, w ):
-        ret = {}
-
-        ret["word_soundex"] = self.__soundex( ''.join(w) )
-        ret["word_numvowels"] = len(filter(lambda x:x in 'aeiou',w))
+    def __soundex_char( self, c ):
+        if c in "aeiou": return 0 # removed by soundex.
+        for (l,r) in [("r", 6),("mn", 5),("l", 4),("dt", 3),("cgjkqsxz",2),("bfvp",1)]:
+            if c in l: return r
+        for (l,r) in [("h",7),("w",8),("y",9)]: #unknown by soundex.
+            if c in l: return r
     
-        return ret
-
-
-    def __soundex( self, word ):
-        def lcr(word, li, repl):
-            return ''.join([ repl if x in li else x for x in word ])
-        def lwr(word, li, repl):
-            res = word
-            for w in li: res=res.replace(w, repl)
-            return res
-
-        word = word.upper()
-        f = word[0]
-        vword = f+''.join([x for x in word[1:] if not(x in "AEIOUY")])
-        for (l,r) in [("R", '6'),("MN", '5'),("L", '4'),("DT", '3'),("CGJKQSXZ",'2'),("BFVP",'1')]:
-            vword = lcr(vword, l, r)
-        for a in ['1','2','3','4','5','6']:
-            vword = lwr(vword, [a*2, a+'H'+a, a+'W'+a], a)
-        vword = ''.join([x for x in vword if not( x in "HW")])
-        while(len(vword) < 4): vword+='0'
-        if len(vword)>4: vword=vword[:4]
-        return f+vword[1:]
-
-
 def samplelist_to_mat(samples):
     """Converts a list of samples into a matrix.
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env python 
 #
 # Usage:
-#   ./phonemer.py [--train=<TRAINING_FILE>] <WORD>
+#   ./phonemer.py -h | ([-s P | [-n H] [-p V]] -d D [-f F] | -t N [-w W]) 
 # 
 
 import os
