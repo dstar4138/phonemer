@@ -109,38 +109,46 @@ class NeuralNet(object):
             return sums, outputs, errors, self.weights
        
 
-    def train(self, samples, validation, epochs=500, epoch_size=1000, debug=False):
+    def train(self, samples, test, epochs=500, train_size=1000, val_size=500, debug=False):
         best_rmse = 9000000001
         best_weights = []
         epochs_since_best = 0
 
         cur_set = samples
+        try:
+            for num_epoch in range(epochs):
+                if epochs_since_best > 50:
+                    break
 
-        for num_epoch in range(epochs):
+                if len(samples) > train_size + val_size:
+                    cur_set = random.sample(samples, train_size + val_size)
+                    cur_train = cur_set[:train_size]
+                    cur_val = cur_set[-val_size:]
+                else:
+                    split = int((float(train_size) / train_size + val_size) * len(samples))
+                    cur_set = random.sample(samples, len(samples))
+                    cur_train = cur_set[:split]
+                    cur_val = cur_set[split:]
+                for s in cur_train:
+                    self.backprop(s)
 
-            if epochs_since_best > 50:
-                break
+                misclassified, rmse, _ = self.test(cur_val, to_print=False)
+                if rmse < best_rmse:
+                    best_rmse = rmse
+                    best_weights = list(self.weights)
+                    epochs_since_best = 0
+                else:
+                    epochs_since_best += 1
 
-            if len(samples) > epoch_size:
-                cur_set = random.sample(samples, epoch_size)
-            for s in cur_set:
-                self.backprop(s)
-
-            misclassified, rmse, _ = self.test(validation, to_print=False)
-            if rmse < best_rmse:
-                best_rmse = rmse
-                best_weights = list(self.weights)
-                epochs_since_best = 0
-            else:
-                epochs_since_best += 1
-
-            if debug and num_epoch % 10 == 0:
-                print('Epoch %d, \tRMSE: %f' % (num_epoch, rmse))        
+                if debug:
+                    print('Epoch %d, \tRMSE: %f' % (num_epoch, rmse))        
+        except KeyboardInterrupt:
+            pass
         self.weights = best_weights
 
         print('\n---Final Results:---')
         print('epochs: %d' % (num_epoch - 1))
-        self.test(validation)
+        self.test(test)
 
 
     def save(self, filename):
@@ -200,7 +208,8 @@ class NeuralNet(object):
             print('misclassified: %f' % misclassified)
             print('rmse: %f' % rmse)
             print('confusion:')
-            print(confusion)
+            if len(confusion) < 30:
+                print(confusion)
 
         return misclassified, rmse, confusion
 

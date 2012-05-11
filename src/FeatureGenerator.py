@@ -19,6 +19,8 @@
 
 import string
 from network import class_to_truth
+from numpy import mat, zeros, cov, dot
+from numpy.linalg import eig
 
 class FeatureGenerator:
     
@@ -55,7 +57,7 @@ class FeatureGenerator:
             self.phones.add(p)
             self._features.append( (w,p) )
 
-    def features_vector(self):
+    def features_vector(self, pca=None):
         """ 
         takes input as a dictionary of features
             {'before_char': 'a', 'after_char': 'c'}
@@ -71,13 +73,25 @@ class FeatureGenerator:
         for f in sorted(self.feature_vals):
             offsets[f] = numvals
             numvals += len(self.feature_vals[f])
-        
+       
+        features_vector = []
         for s, t in self._features:
             v = [0] * numvals
             for f in self.feature_vals:
                 idx = offsets[f] + self.feature_vals[f].index(s[f])
                 v[idx] = 1
-            yield v, class_to_truth(phones.index(t), len(phones))
+            features_vector.append((v, class_to_truth(phones.index(t), len(phones))))
+        
+        if pca:
+            feats, truth = samplelist_to_mat(features_vector)
+            _, eigvecs = gen_pca(feats)
+            feats = run_pca(feats, eigvecs, pca)
+            return zip(feats.tolist(), truth.tolist())
+        else:
+            return features_vector
+
+
+
 
     def __gen_features(self, index, w):
         """ Returns a dictionary of the features for a current index in a 
@@ -129,4 +143,32 @@ class FeatureGenerator:
         while(len(vword) < 4): vword+='0'
         if len(vword)>4: vword=vword[:4]
         return f+vword[1:]
+
+
+def samplelist_to_mat(samples):
+    """Converts a list of samples into a matrix.
+
+    Returns: (inputs, outputs), where each are matrices.
+
+    """
+    first = samples[0]
+    inputs =  mat(zeros((len(samples), len(first[0]))))
+    outputs = mat(zeros((len(samples), len(first[1]))))
+
+    for i, s in enumerate(samples):
+        inputs[i] = s[0]
+        outputs[i] = s[1]
+
+    return inputs, outputs
+
+def gen_pca(matrix):
+    """Returns (eigenvalues, eigenvectors) of the given matrix."""
+    c = cov(matrix.T)
+    eigval, eigvec = eig(c)
+    return eigval, eigvec
+
+def run_pca(matrix, eigvec, num_components):
+    """Performs PCA on the given matrix of data."""
+    vecs = eigvec[:, :num_components]
+    return dot(matrix, vecs)
 

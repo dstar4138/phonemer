@@ -1,6 +1,7 @@
 *.py[co]
 
 data
+*.nn
 
 # Packages
 *.egg
