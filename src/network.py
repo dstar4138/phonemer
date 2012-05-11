@@ -54,13 +54,14 @@ def pad(x):
 def loadNN(filename):
     """ Returns a NeuralNet that was saved to a file using NeuralNet.save() """
     try:
+        pcas = None
         nn = None
         with open(filename,'r') as f:
-            data = pickle.load(f)
-            nn = NeuralNet( data["struct"], data["lr"] )
-            nn.weights = data["weights"]
-        return nn
-    except: return None
+            dat = pickle.load(f)
+            pcas = dat["pcas"]
+            nn = dat["nn"]
+        return pcas, nn
+    except: return None, None
                 
 
 class NeuralNet(object):
@@ -151,13 +152,11 @@ class NeuralNet(object):
         self.test(test)
 
 
-    def save(self, filename):
+    def save(self, pcas, filename):
         try:
-            data = {"weights":self.weights,
-                    "lr":self.lr,
-                    "struct":self.structure}
             with open(filename,'w') as f:
-                pickle.dump(data, f)
+                dat = {"nn":self,"pcas":pcas}
+                pickle.dump(dat,f)
             return True
         except: return False   
 
@@ -207,8 +206,8 @@ class NeuralNet(object):
         if to_print:
             print('misclassified: %f' % misclassified)
             print('rmse: %f' % rmse)
-            print('confusion:')
             if len(confusion) < 30:
+                print('confusion:')
                 print(confusion)
 
         return misclassified, rmse, confusion
