@@ -33,7 +33,7 @@ class PhonemeDataFile:
     def readWord(self):
         """ A Generator for reading in the words, returns a tuple of (word, pronunciation)."""
         prev=None
-        for line in fileinput.input([self._filename], mode='r'):
+        for line in open(self._filename, 'r'):
             if line in [' ','']: continue
 
             if prev == None:
