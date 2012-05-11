@@ -160,7 +160,7 @@ def gen_pca(matrix):
     svecs = zeros(eigvec.shape)
     for i in range(eigvec.shape[1]):
         svecs[:,i] = eigvec[:,svals[i]]
-    import ipdb; ipdb.set_trace()
+#    import ipdb; ipdb.set_trace()
     return eigval, svecs
 
 def run_pca(matrix, eigvec, num_components):
