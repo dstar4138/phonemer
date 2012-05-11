@@ -20,7 +20,7 @@
 import string
 from network import class_to_truth
 from numpy import mat, zeros, cov, dot
-from numpy.linalg import eig
+from numpy.linalg import eigh
 
 class FeatureGenerator:
     
@@ -164,8 +164,13 @@ def samplelist_to_mat(samples):
 def gen_pca(matrix):
     """Returns (eigenvalues, eigenvectors) of the given matrix."""
     c = cov(matrix.T)
-    eigval, eigvec = eig(c)
-    return eigval, eigvec
+    eigval, eigvec = eigh(c)
+    svals = [v[0] for v in sorted(enumerate(eigval), key=lambda x: x[1], reverse=True)]
+    svecs = zeros(eigvec.shape)
+    for i in range(eigvec.shape[1]):
+        svecs[:,i] = eigvec[:,svals[i]]
+    import ipdb; ipdb.set_trace()
+    return eigval, svecs
 
 def run_pca(matrix, eigvec, num_components):
     """Performs PCA on the given matrix of data."""
