@@ -55,6 +55,26 @@ class FeatureGenerator:
             self.phones.add(p)
             self._features.append( (w,p) )
 
+    def word_vectors(self, word):
+        """Given a word (as a list of characters) this will return the feature 
+        vectors for each character to be passed into the neural net. In other
+        words this will return a list of tuples (character, vector).
+        """
+        wfeats = [ (word[i], self.__gen_features( i, word )) for i in range(len(word)) ]
+        numvals=0
+        offsets={}
+        for f in sorted(self.feature_vals):
+            offsets[f] = numvals
+            numvals+= len(self.feature_vals[f])
+        features_vector = []
+        for c,s in wfeats:
+            v=[0]*numvals
+            for f in self.feature_vals:
+                idx = offsets[f] + self.feature_vals[f].index(s[f])
+                v[idx]=1
+            features_vector.append( (c,v) )
+        return features_vector
+
     def features_vector(self, pca=None):
         """ 
         takes input as a dictionary of features

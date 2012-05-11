@@ -58,9 +58,13 @@ def validateNN( nnfile ):
 
 def testWord( nnfile, word ):
     pcas, nn = loadNN( nnfile )
-    
-#TODO: test the word.
-    print "Not implemented yet! Sorry!"
+    fgen = FeatureGenerator(None)
+    wordc = [c for c in word.lower()]
+    vectors = fgen.word_vectors( wordc )
+    print "For word: %s"%word
+    for c, v in vectors:
+        p = nn.run(v) #TODO: interpret the output vector as a pronunciation
+        print "char: %s, pronunciation: %s"%(c,p)
 
 def splitTrainingSet( trainFile, splitSize ):
     if splitSize < 0 or splitSize > 1:
