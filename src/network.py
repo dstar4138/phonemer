@@ -54,11 +54,14 @@ def pad(x):
 def loadNN(filename):
     """ Returns a NeuralNet that was saved to a file using NeuralNet.save() """
     try:
+        pcas = None
         nn = None
         with open(filename,'r') as f:
-            nn = pickle.load(f)
-        return nn
-    except: return None
+            dat = pickle.load(f)
+            pcas = dat["pcas"]
+            nn = dat["nn"]
+        return pcas, nn
+    except: return None, None
                 
 
 class NeuralNet(object):
@@ -149,10 +152,11 @@ class NeuralNet(object):
         self.test(test)
 
 
-    def save(self, filename):
+    def save(self, pcas, filename):
         try:
             with open(filename,'w') as f:
-                pickle.dump(self,f)
+                dat = {"nn":self,"pcas":pcas}
+                pickle.dump(dat,f)
             return True
         except: return False   
 

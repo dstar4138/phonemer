@@ -86,9 +86,9 @@ class FeatureGenerator:
             feats, truth = samplelist_to_mat(features_vector)
             _, eigvecs = gen_pca(feats)
             feats = run_pca(feats, eigvecs, pca)
-            return zip(feats.tolist(), truth.tolist())
+            return zip(feats.tolist(), truth.tolist()), eigvecs
         else:
-            return features_vector
+            return features_vector, None
 
 
 
