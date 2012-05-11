@@ -206,8 +206,8 @@ class NeuralNet(object):
         if to_print:
             print('misclassified: %f' % misclassified)
             print('rmse: %f' % rmse)
-            print('confusion:')
             if len(confusion) < 30:
+                print('confusion:')
                 print(confusion)
 
         return misclassified, rmse, confusion
