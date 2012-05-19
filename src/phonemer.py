@@ -49,7 +49,7 @@ def makeNN(filename, outputfile, hidden, pca, layers):
 
     network = NeuralNet( inputVars )
     network.train(train, test, debug=True)
-    if network.save(pcas,fgen.phones,outputfile):
+    if network.save(pcas,list(fgen.phones),outputfile):
         print "Saved nn successfully"
     else: print "Error while saving nn"
 
