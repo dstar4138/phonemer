@@ -86,6 +86,7 @@ class FeatureGenerator:
         """
         self.gen_feature_possibilities()
         phones = list(self.phones)
+        print "Phones: %d"%len(phones)
         numvals = 0
         offsets = {}
         for f in sorted(self.feature_vals):

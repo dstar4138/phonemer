@@ -54,14 +54,14 @@ def pad(x):
 def loadNN(filename):
     """ Returns a NeuralNet that was saved to a file using NeuralNet.save() """
     try:
-        pcas = None
-        nn = None
+        pcas, phones, nn = None, None, None
         with open(filename,'r') as f:
             dat = pickle.load(f)
             pcas = dat["pcas"]
+            phones = dat["phones"]
             nn = dat["nn"]
-        return pcas, nn
-    except: return None, None
+        return pcas,phones,nn
+    except: return None, None, None
                 
 
 class NeuralNet(object):
@@ -115,6 +115,11 @@ class NeuralNet(object):
         best_weights = []
         epochs_since_best = 0
 
+        if train_size > len(samples):
+            train_size = len(samples)*0.8
+        if val_size > len(samples):
+            val_size = len(samples)*0.2
+
         cur_set = samples
         try:
             for num_epoch in range(epochs):
@@ -152,10 +157,10 @@ class NeuralNet(object):
         self.test(test)
 
 
-    def save(self, pcas, filename):
+    def save(self, pcas, phones, filename):
         try:
             with open(filename,'w') as f:
-                dat = {"nn":self,"pcas":pcas}
+                dat = {"nn":self,"phones":phones,"pcas":pcas}
                 pickle.dump(dat,f)
             return True
         except: return False   
